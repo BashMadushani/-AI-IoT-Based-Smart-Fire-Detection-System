@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Event History</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+
+    font-family: Arial, sans-serif;
+
+    background: #08111f;
+
+    color: white;
+
+    min-height: 100vh;
+}
+
+
+/* SIDEBAR */
+
+.sidebar {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 240px;
+
+    height: 100vh;
+
+    background: #0f172a;
+
+    border-right: 1px solid #263244;
+
+    padding: 24px 15px;
+
+    z-index: 100;
+}
+
+.sidebar-logo {
+
+    font-size: 19px;
+
+    font-weight: bold;
+
+    padding: 0 12px 25px;
+}
+
+.sidebar-logo span {
+
+    color: #ef4444;
+}
+
+.nav-item {
+
+    display: block;
+
+    text-decoration: none;
+
+    color: #94a3b8;
+
+    padding: 13px 14px;
+
+    margin: 6px 0;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+    transition: .2s;
+}
+
+.nav-item:hover {
+
+    background: #172033;
+
+    color: white;
+}
+
+.nav-item.active {
+
+    background: #1d4ed8;
+
+    color: white;
+}
+
+
+/* MAIN */
+
+.main {
+
+    margin-left: 240px;
+
+    min-height: 100vh;
+}
+
+
+/* HEADER */
+
+.header {
+
+    height: 76px;
+
+    padding: 20px 28px;
+
+    background: #111827;
+
+    border-bottom: 1px solid #263244;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.header h1 {
+
+    font-size: 23px;
+}
+
+.status {
+
+    color: #22c55e;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+/* CONTENT */
+
+.container {
+
+    padding: 28px;
+
+    max-width: 1500px;
+
+    margin: auto;
+}
+
+
+/* CARDS */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 22px;
+}
+
+.stat {
+
+    background: #111b2d;
+
+    border: 1px solid #263244;
+
+    border-radius: 14px;
+
+    padding: 20px;
+}
+
+.stat-label {
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+}
+
+.stat-value {
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    margin-top: 8px;
+}
+
+
+/* TABLE CARD */
+
+.card {
+
+    background: #111b2d;
+
+    border: 1px solid #263244;
+
+    border-radius: 15px;
+
+    padding: 22px;
+}
+
+.card-title {
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    margin-bottom: 18px;
+}
+
+
+/* TABLE */
+
+.table-wrapper {
+
+    overflow-x: auto;
+}
+
+table {
+
+    width: 100%;
+
+    min-width: 1050px;
+
+    border-collapse: collapse;
+}
+
+th {
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    text-align: left;
+
+    padding: 13px;
+
+    border-bottom: 1px solid #263244;
+}
+
+td {
+
+    padding: 13px;
+
+    font-size: 12px;
+
+    border-bottom: 1px solid #1e293b;
+
+    color: #dbeafe;
+}
+
+
+/* RISK BADGE */
+
+.badge {
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+
+    font-weight: bold;
+}
+
+.low {
+
+    background: rgba(34,197,94,.12);
+
+    color: #4ade80;
+}
+
+.medium {
+
+    background: rgba(250,204,21,.12);
+
+    color: #fde047;
+}
+
+.high {
+
+    background: rgba(251,146,60,.12);
+
+    color: #fb923c;
+}
+
+.critical {
+
+    background: rgba(239,68,68,.14);
+
+    color: #f87171;
+}
+
+
+/* REFRESH */
+
+.refresh {
+
+    border: none;
+
+    background: #2563eb;
+
+    color: white;
+
+    padding: 10px 15px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+
+/* RESPONSIVE */
+
+@media(max-width:800px) {
+
+    .sidebar {
+
+        width: 190px;
+    }
+
+    .main {
+
+        margin-left: 190px;
+    }
+
+    .stats {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+    <div class="sidebar-logo">
+
+        🔥 Smart <span>Fire</span>
+
+    </div>
+
+
+    <a
+        href="/dashboard"
+        class="nav-item">
+
+        🏠 Dashboard
+
+    </a>
+
+
+    <a
+        href="/event-history"
+        class="nav-item active">
+
+        📜 Event History
+
+    </a>
+
+
+    <a
+        href="/emergency-contact"
+        class="nav-item">
+
+        🚨 Emergency Contacts
+
+    </a>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<div class="main">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <h1>
+            📜 Event History
+        </h1>
+
+        <div class="status">
+
+            ● SYSTEM ONLINE
+
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+
+        <!-- STATS -->
+
+        <section class="stats">
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Total Events
+                </div>
+
+                <div
+                    id="total"
+                    class="stat-value">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Medium+
+                </div>
+
+                <div
+                    id="medium"
+                    class="stat-value">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    High
+                </div>
+
+                <div
+                    id="high"
+                    class="stat-value">
+
+                    0
+
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Critical
+                </div>
+
+                <div
+                    id="critical"
+                    class="stat-value">
+
+                    0
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- HISTORY -->
+
+        <section class="card">
+
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:15px;
+                margin-bottom:18px;
+            ">
+
+                <div class="card-title"
+                     style="margin:0">
+
+                    📋 Sensor Event Records
+
+                </div>
+
+
+                <button
+                    class="refresh"
+                    onclick="loadEvents()">
+
+                    ↻ Refresh
+
+                </button>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>TIME</th>
+
+                            <th>TEMP</th>
+
+                            <th>HUMIDITY</th>
+
+                            <th>GAS</th>
+
+                            <th>FLAME</th>
+
+                            <th>IR</th>
+
+                            <th>RISK</th>
+
+                            <th>SCORE</th>
+
+                            <th>ACTION</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="history">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+async function loadEvents() {
+
+    try {
+
+        const response =
+            await fetch("/events");
+
+        const result =
+            await response.json();
+
+        const events =
+            result.events || [];
+
+
+        document.getElementById(
+            "total"
+        ).innerText =
+            events.length;
+
+
+        document.getElementById(
+            "medium"
+        ).innerText =
+            events.filter(
+                e =>
+                    Number(
+                        e.risk_score
+                    ) >= 30
+            ).length;
+
+
+        document.getElementById(
+            "high"
+        ).innerText =
+            events.filter(
+                e =>
+                    e.risk_level === "HIGH"
+            ).length;
+
+
+        document.getElementById(
+            "critical"
+        ).innerText =
+            events.filter(
+                e =>
+                    e.risk_level === "CRITICAL"
+            ).length;
+
+
+        const table =
+            document.getElementById(
+                "history"
+            );
+
+        table.innerHTML = "";
+
+
+        events.forEach(
+            event => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                const riskClass =
+                    (
+                        event.risk_level ||
+                        "LOW"
+                    ).toLowerCase();
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${event.timestamp}
+                    </td>
+
+                    <td>
+                        ${Number(
+                            event.temperature
+                        ).toFixed(1)} °C
+                    </td>
+
+                    <td>
+                        ${Number(
+                            event.humidity
+                        ).toFixed(1)} %
+                    </td>
+
+                    <td>
+                        ${event.gas}
+                    </td>
+
+                    <td>
+                        ${
+                            Number(event.flame) === 1
+                            ? "🔥 DETECTED"
+                            : "CLEAR"
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            Number(event.ir) === 1
+                            ? "📡 DETECTED"
+                            : "CLEAR"
+                        }
+                    </td>
+
+                    <td>
+
+                        <span
+                            class="badge ${riskClass}">
+
+                            ${event.risk_level}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+                        ${event.risk_score}
+                    </td>
+
+                    <td>
+                        ${event.emergency_action}
+                    </td>
+
+                `;
+
+
+                table.appendChild(row);
+
+            }
+        );
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Event history error:",
+            error
+        );
+
+    }
+
+}
+
+
+loadEvents();
+
+setInterval(
+    loadEvents,
+    5000
+);
+
+</script>
+
+
+</body>
+
+</html>

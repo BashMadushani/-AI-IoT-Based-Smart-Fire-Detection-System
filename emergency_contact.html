@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+   content="width=device-width, initial-scale=1.0">
+
+<title>Emergency Contacts</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #08111f;
+    color: white;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100vh;
+    background: #0f172a;
+    border-right: 1px solid #263244;
+    padding: 24px 15px;
+}
+
+.sidebar-logo {
+    font-size: 19px;
+    font-weight: bold;
+    padding: 0 12px 25px;
+}
+
+.sidebar-logo span {
+    color: #ef4444;
+}
+
+.nav-item {
+    display: block;
+    text-decoration: none;
+    color: #94a3b8;
+    padding: 13px 14px;
+    margin: 6px 0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.nav-item:hover {
+    background: #172033;
+    color: white;
+}
+
+.nav-item.active {
+    background: #dc2626;
+    color: white;
+}
+
+/* MAIN */
+
+.main {
+    margin-left: 240px;
+    min-height: 100vh;
+}
+
+/* HEADER */
+
+.header {
+    height: 76px;
+    padding: 20px 28px;
+    background: #111827;
+    border-bottom: 1px solid #263244;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 23px;
+}
+
+.system-status {
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* CONTENT */
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 30px;
+}
+
+/* ALERT */
+
+.alert-header {
+    background: linear-gradient(
+        135deg,
+        #451111,
+        #621313
+    );
+
+    border: 1px solid #ef4444;
+    border-radius: 15px;
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.alert-header h2 {
+    color: #ff6b6b;
+    font-size: 22px;
+    margin-bottom: 7px;
+}
+
+.alert-header p {
+    color: #cbd5e1;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* GRID */
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+/* CARD */
+
+.card {
+    background: #111b2d;
+    border: 1px solid #263244;
+    border-radius: 15px;
+    padding: 22px;
+}
+
+.card h3 {
+    font-size: 17px;
+    margin-bottom: 18px;
+}
+
+/* CONTACT ROW */
+
+.contact-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 14px;
+    background: #172033;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.contact-label {
+    color: #64748b;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.contact-value {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: right;
+}
+
+/* EMERGENCY SERVICE */
+
+.service-card {
+    background: #172033;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.service-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.service-icon {
+    font-size: 27px;
+}
+
+.service-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.service-number {
+    color: #94a3b8;
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.call-button {
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 13px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.call-button:hover {
+    background: #15803d;
+}
+
+/* LOCATION */
+
+.location-box {
+    background: #172033;
+    border-radius: 10px;
+    padding: 15px;
+    line-height: 1.9;
+    color: #cbd5e1;
+}
+
+.location-box strong {
+    color: white;
+}
+
+/* MAP BUTTON */
+
+.maps-button {
+    margin-top: 15px;
+    padding: 11px 16px;
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.maps-button:hover {
+    background: #1d4ed8;
+}
+
+/* RESPONSE */
+
+.response-box {
+    background: #172033;
+    border-radius: 10px;
+    padding: 15px;
+    line-height: 1.8;
+    color: #cbd5e1;
+}
+
+.high {
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+.critical {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:800px) {
+
+    .sidebar {
+        width: 190px;
+    }
+
+    .main {
+        margin-left: 190px;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<aside class="sidebar">
+
+```
+<div class="sidebar-logo">
+
+    🔥 Smart <span>Fire</span>
+
+</div>
+
+
+<a
+    href="/dashboard"
+    class="nav-item">
+
+    🏠 Dashboard
+
+</a>
+
+
+<a
+    href="/event-history"
+    class="nav-item">
+
+    📜 Event History
+
+</a>
+
+
+<a
+    href="/emergency-contact"
+    class="nav-item active">
+
+    🚨 Emergency Contacts
+
+</a>
+```
+
+</aside>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<header class="header">
+
+```
+<h1>
+    🚨 Emergency Contacts
+</h1>
+
+<div class="system-status">
+
+    ● SYSTEM ONLINE
+
+</div>
+```
+
+</header>
+
+<main class="container">
+
+<!-- ALERT -->
+
+<section class="alert-header">
+
+```
+<h2>
+    🚨 Emergency Response Directory
+</h2>
+
+<p>
+
+    Contact the appropriate emergency service
+    immediately when a HIGH or CRITICAL fire
+    condition is detected.
+
+</p>
+```
+
+</section>
+
+<section class="contact-grid">
+
+<!-- ===================================================== -->
+
+<!-- POLICE -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    👮 Police Emergency Service
+</h3>
+
+<div class="service-card">
+
+    <div class="service-left">
+
+        <div class="service-icon">
+            👮
+        </div>
+
+        <div>
+
+            <div
+                id="policeName"
+                class="service-name">
+
+                Loading...
+
+            </div>
+
+            <div
+                id="policePhone"
+                class="service-number">
+
+                Loading...
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <a
+        id="policeCall"
+        class="call-button"
+        href="#">
+
+        📞 CALL
+
+    </a>
+
+</div>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- FIRE -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    🚒 Fire & Rescue Service
+</h3>
+
+<div class="service-card">
+
+    <div class="service-left">
+
+        <div class="service-icon">
+            🚒
+        </div>
+
+        <div>
+
+            <div
+                id="fireName"
+                class="service-name">
+
+                Loading...
+
+            </div>
+
+            <div
+                id="firePhone"
+                class="service-number">
+
+                Loading...
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <a
+        id="fireCall"
+        class="call-button"
+        href="#">
+
+        📞 CALL
+
+    </a>
+
+</div>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- AMBULANCE -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    🚑 Ambulance / Medical Emergency
+</h3>
+
+<div class="service-card">
+
+    <div class="service-left">
+
+        <div class="service-icon">
+            🚑
+        </div>
+
+        <div>
+
+            <div
+                id="ambulanceName"
+                class="service-name">
+
+                Loading...
+
+            </div>
+
+            <div
+                id="ambulancePhone"
+                class="service-number">
+
+                Loading...
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <a
+        id="ambulanceCall"
+        class="call-button"
+        href="#">
+
+        📞 CALL
+
+    </a>
+
+</div>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- PRIMARY CONTACT -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    👤 Primary Responsible Person
+</h3>
+
+<div class="contact-row">
+
+    <div class="contact-label">
+        Name / Role
+    </div>
+
+    <div
+        id="primaryContact"
+        class="contact-value">
+
+        Loading...
+
+    </div>
+
+</div>
+
+
+<div class="contact-row">
+
+    <div class="contact-label">
+        Phone
+    </div>
+
+    <div
+        id="primaryPhone"
+        class="contact-value">
+
+        Loading...
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- SECONDARY CONTACT -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    👥 Secondary Contact
+</h3>
+
+<div class="contact-row">
+
+    <div class="contact-label">
+        Name / Role
+    </div>
+
+    <div
+        id="secondaryContact"
+        class="contact-value">
+
+        Loading...
+
+    </div>
+
+</div>
+
+
+<div class="contact-row">
+
+    <div class="contact-label">
+        Phone
+    </div>
+
+    <div
+        id="secondaryPhone"
+        class="contact-value">
+
+        Loading...
+
+    </div>
+
+</div>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- LOCATION -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    📍 Registered Emergency Location
+</h3>
+
+
+<div class="location-box">
+
+    <div>
+
+        Building:
+
+        <strong id="building">
+            Loading...
+        </strong>
+
+    </div>
+
+
+    <div>
+
+        Location:
+
+        <strong id="location">
+            Loading...
+        </strong>
+
+    </div>
+
+
+    <div>
+
+        GPS:
+
+        <strong id="gps">
+            Loading...
+        </strong>
+
+    </div>
+
+</div>
+
+
+<button
+    class="maps-button"
+    onclick="openMap()">
+
+    🗺 Open Google Maps
+
+</button>
+```
+
+</div>
+
+<!-- ===================================================== -->
+
+<!-- RESPONSE -->
+
+<!-- ===================================================== -->
+
+<div class="card">
+
+```
+<h3>
+    🛡 Emergency Response
+</h3>
+
+
+<div class="response-box">
+
+    <p class="high">
+        ⚠ HIGH
+    </p>
+
+    <p>
+        Evacuate nearby area.
+    </p>
+
+    <p>
+        Contact responsible person.
+    </p>
+
+    <br>
+
+    <p class="critical">
+        🚨 CRITICAL
+    </p>
+
+    <p>
+        Immediate emergency response required.
+    </p>
+
+    <p>
+        Contact Police / Fire & Rescue /
+        Ambulance as required.
+    </p>
+
+</div>
+```
+
+</div>
+
+</section>
+
+</main>
+
+</div>
+
+<script>
+
+let mapsUrl = "";
+
+
+// ============================================================
+// LOAD CONTACT DATA
+// ============================================================
+
+async function loadContactData() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/emergency-contact-data"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.status ===
+            "success"
+        ) {
+
+            const contact =
+                result.contact;
+
+
+            // ------------------------------------------------
+            // PRIMARY
+            // ------------------------------------------------
+
+            document.getElementById(
+                "primaryContact"
+            ).innerText =
+                contact.primary_contact;
+
+
+            document.getElementById(
+                "primaryPhone"
+            ).innerText =
+                contact.primary_phone;
+
+
+            // ------------------------------------------------
+            // SECONDARY
+            // ------------------------------------------------
+
+            document.getElementById(
+                "secondaryContact"
+            ).innerText =
+                contact.secondary_contact;
+
+
+            document.getElementById(
+                "secondaryPhone"
+            ).innerText =
+                contact.secondary_phone;
+
+
+            // ------------------------------------------------
+            // LOCATION
+            // ------------------------------------------------
+
+            document.getElementById(
+                "building"
+            ).innerText =
+                contact.building;
+
+
+            document.getElementById(
+                "location"
+            ).innerText =
+                contact.location;
+
+
+            document.getElementById(
+                "gps"
+            ).innerText =
+                contact.gps_status;
+
+
+            // ------------------------------------------------
+            // POLICE
+            // ------------------------------------------------
+
+            document.getElementById(
+                "policeName"
+            ).innerText =
+                contact.police.name;
+
+
+            document.getElementById(
+                "policePhone"
+            ).innerText =
+                contact.police.phone;
+
+
+            document.getElementById(
+                "policeCall"
+            ).href =
+                "tel:" +
+                contact.police.phone;
+
+
+            // ------------------------------------------------
+            // FIRE
+            // ------------------------------------------------
+
+            document.getElementById(
+                "fireName"
+            ).innerText =
+                contact.fire.name;
+
+
+            document.getElementById(
+                "firePhone"
+            ).innerText =
+                contact.fire.phone;
+
+
+            document.getElementById(
+                "fireCall"
+            ).href =
+                "tel:" +
+                contact.fire.phone;
+
+
+            // ------------------------------------------------
+            // AMBULANCE
+            // ------------------------------------------------
+
+            document.getElementById(
+                "ambulanceName"
+            ).innerText =
+                contact.ambulance.name;
+
+
+            document.getElementById(
+                "ambulancePhone"
+            ).innerText =
+                contact.ambulance.phone;
+
+
+            document.getElementById(
+                "ambulanceCall"
+            ).href =
+                "tel:" +
+                contact.ambulance.phone;
+
+        }
+
+    }
+
+    catch(error) {
+
+        console.error(
+            "Contact error:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// GOOGLE MAPS
+// ============================================================
+
+async function openMap() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/location"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.status ===
+            "success"
+        ) {
+
+            mapsUrl =
+                result.location.maps_url;
+
+
+            window.open(
+                mapsUrl,
+                "_blank"
+            );
+
+        }
+
+    }
+
+    catch(error) {
+
+        alert(
+            "Google Maps location is unavailable."
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// LOAD
+// ============================================================
+
+loadContactData();
+
+</script>
+
+</body>
+
+</html>

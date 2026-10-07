@@ -1,0 +1,4078 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Fire Detection Dashboard</title>
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #08111f;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 240px;
+            height: 100vh;
+            background: #0f172a;
+            border-right: 1px solid #263244;
+            padding: 24px 15px;
+            z-index: 1000;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: 800;
+            padding: 0 12px 28px;
+        }
+
+        .sidebar-logo span {
+            color: #ef4444;
+        }
+
+        .nav-item {
+            display: block;
+            text-decoration: none;
+            color: #94a3b8;
+            padding: 14px;
+            margin: 7px 0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .nav-item:hover {
+            background: #172033;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #1d4ed8;
+            color: white;
+        }
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        .main {
+            margin-left: 240px;
+            min-height: 100vh;
+        }
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            background: linear-gradient(
+                135deg,
+                #0f172a,
+                #111827
+            );
+
+            border-bottom: 1px solid #263244;
+
+            padding: 18px 30px;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            gap: 20px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 500;
+        }
+
+        .brand h1 {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .brand p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            padding: 9px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+            background: #172033;
+            border: 1px solid #263244;
+        }
+
+        .status-online {
+            color: #22c55e;
+            background: rgba(34,197,94,.08);
+            border-color: rgba(34,197,94,.30);
+        }
+
+        .status-offline {
+            color: #ef4444;
+            background: rgba(239,68,68,.08);
+            border-color: rgba(239,68,68,.30);
+        }
+
+        /* =====================================================
+           CONTENT
+        ===================================================== */
+
+        .container {
+            max-width: 1450px;
+            margin: auto;
+            padding: 28px;
+        }
+
+        /* =====================================================
+           EMERGENCY ALERT
+        ===================================================== */
+
+        .emergency-alert {
+            display: none;
+            align-items: center;
+            gap: 18px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border-radius: 16px;
+
+            background: linear-gradient(
+                135deg,
+                #451111,
+                #631313
+            );
+
+            border: 1px solid #ef4444;
+
+            box-shadow:
+                0 0 30px rgba(239,68,68,.14);
+
+            animation: alertPulse 1.5s infinite;
+        }
+
+        .emergency-icon {
+            font-size: 42px;
+        }
+
+        .emergency-title {
+            font-size: 23px;
+            font-weight: 900;
+            color: #ff6b6b;
+        }
+
+        .emergency-message {
+            margin-top: 7px;
+            color: #f8fafc;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @keyframes alertPulse {
+
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .78;
+            }
+
+            100% {
+                opacity: 1;
+            }
+
+        }
+
+        /* =====================================================
+           SENSOR CARDS
+        ===================================================== */
+
+        .sensor-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(210px, 1fr)
+                );
+
+            gap: 18px;
+
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: linear-gradient(
+                145deg,
+                #111b2d,
+                #0e1727
+            );
+
+            border: 1px solid #243148;
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 12px 35px rgba(0,0,0,.18);
+        }
+
+        .metric-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            right: -30px;
+            top: -30px;
+            border-radius: 50%;
+            background: rgba(59,130,246,.07);
+        }
+
+        .card-label {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 800;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 34px;
+            font-weight: 900;
+            margin-top: 10px;
+            line-height: 1.1;
+        }
+
+        .metric-unit {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .metric-sub {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+
+        /* =====================================================
+           BUILDING SENSOR LAYOUT
+        ===================================================== */
+
+        .building-card {
+            margin-bottom: 24px;
+        }
+
+        .building-status {
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            border: 1px solid #263244;
+            background: #172033;
+        }
+
+        .building-status.safe {
+            color: #22c55e;
+            border-color: rgba(34,197,94,.35);
+            background: rgba(34,197,94,.08);
+        }
+
+        .building-status.warning {
+            color: #facc15;
+            border-color: rgba(250,204,21,.35);
+            background: rgba(250,204,21,.08);
+        }
+
+        .building-status.alert {
+            color: #ef4444;
+            border-color: rgba(239,68,68,.35);
+            background: rgba(239,68,68,.08);
+        }
+
+        .floor-plan {
+            display: grid;
+            gap: 18px;
+        }
+
+        .floor {
+            background: #0a1423;
+            border: 1px solid #263244;
+            border-radius: 14px;
+            padding: 15px;
+        }
+
+        .floor-label {
+            color: #60a5fa;
+            font-size: 13px;
+            font-weight: 900;
+            margin-bottom: 13px;
+            letter-spacing: .5px;
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .room {
+            min-height: 170px;
+            padding: 17px;
+            border-radius: 14px;
+            border: 2px solid rgba(34,197,94,.25);
+            background: linear-gradient(
+                145deg,
+                #101d2f,
+                #0c1727
+            );
+
+            transition:
+                .25s;
+
+            position: relative;
+        }
+
+        .room-safe {
+            border-color: rgba(34,197,94,.35);
+        }
+
+        .room-alert {
+            border-color: #ef4444;
+
+            background: linear-gradient(
+                145deg,
+                #32131a,
+                #1d1118
+            );
+
+            box-shadow:
+                0 0 25px rgba(239,68,68,.16);
+        }
+
+        .room-warning {
+            border-color: #facc15;
+
+            background: linear-gradient(
+                145deg,
+                #302811,
+                #1c1810
+            );
+        }
+
+        .room-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .room-sensor {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .sensor-chip {
+            display: inline-block;
+
+            padding: 7px 10px;
+
+            margin:
+                3px 4px 3px 0;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            border: 1px solid #263244;
+
+            background: #172033;
+        }
+
+        .sensor-chip.safe {
+            color: #22c55e;
+            border-color: rgba(34,197,94,.25);
+        }
+
+        .sensor-chip.alert {
+            color: #ef4444;
+            border-color: rgba(239,68,68,.4);
+            background: rgba(239,68,68,.08);
+        }
+
+        .sensor-chip.warning {
+            color: #facc15;
+            border-color: rgba(250,204,21,.35);
+            background: rgba(250,204,21,.08);
+        }
+
+        .room-status {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 13px;
+            line-height: 1.4;
+        }
+
+        .room-status.alert-text {
+            color: #ef4444;
+            font-weight: 800;
+        }
+
+        .room-status.safe-text {
+            color: #22c55e;
+        }
+
+        .floor2-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.7fr 1fr;
+            gap: 14px;
+        }
+
+        .floor-space {
+            min-height: 170px;
+            border: 1px dashed #263244;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .layout-legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .legend-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .legend-safe {
+            background: #22c55e;
+        }
+
+        .legend-warning {
+            background: #facc15;
+        }
+
+        .legend-alert {
+            background: #ef4444;
+        }
+
+        /* =====================================================
+           TWO COLUMN
+        ===================================================== */
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* =====================================================
+           CARD HEADER
+        ===================================================== */
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .card-header span {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* =====================================================
+           RISK
+        ===================================================== */
+
+        .risk-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .risk-ring {
+            width: 190px;
+            height: 190px;
+            border-radius: 50%;
+
+            display: grid;
+            place-items: center;
+
+            background:
+                conic-gradient(
+                    #22c55e 0deg,
+                    #22c55e 0deg,
+                    #1e293b 0deg
+                );
+
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .risk-ring::before {
+            content: "";
+
+            position: absolute;
+
+            width: 145px;
+            height: 145px;
+
+            border-radius: 50%;
+
+            background: #0d1727;
+        }
+
+        .risk-center {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .risk-number {
+            font-size: 42px;
+            font-weight: 900;
+        }
+
+        .risk-small {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .risk-info {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .risk-level {
+            font-size: 34px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+
+        .low {
+            color: #22c55e;
+        }
+
+        .medium {
+            color: #facc15;
+        }
+
+        .high {
+            color: #fb923c;
+        }
+
+        .critical {
+            color: #ef4444;
+        }
+
+        .risk-description {
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .risk-meta {
+            margin-top: 16px;
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,1fr);
+
+            gap: 10px;
+        }
+
+        .mini-box {
+            background: #172033;
+            border: 1px solid #263244;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .mini-box span {
+            color: #64748b;
+            display: block;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .mini-box strong {
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           ACTION
+        ===================================================== */
+
+        .action-box {
+            background: #172033;
+            border: 1px solid #263244;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .action-status {
+            color: #60a5fa;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .action-text {
+            font-size: 20px;
+            font-weight: 900;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .message {
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .fire-state {
+            font-size: 20px;
+            font-weight: 900;
+            margin-top: 10px;
+        }
+
+        /* =====================================================
+           CHARTS
+        ===================================================== */
+
+        .charts-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3,minmax(0,1fr));
+
+            gap: 18px;
+
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            min-height: 230px;
+        }
+
+        .chart {
+            width: 100%;
+            height: 130px;
+            display: block;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .chart-value {
+            color: #cbd5e1;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           SENSOR HEALTH
+        ===================================================== */
+
+        .health-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .health-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 14px;
+            background: #172033;
+            border: 1px solid #263244;
+            border-radius: 10px;
+        }
+
+        .health-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .health-status {
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .health-ok {
+            color: #22c55e;
+        }
+
+        .health-fault {
+            color: #ef4444;
+        }
+
+        /* =====================================================
+           LOCATION
+        ===================================================== */
+
+        .location-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2,minmax(0,1fr));
+
+            gap: 12px;
+        }
+
+        .location-item {
+            background: #172033;
+            border: 1px solid #263244;
+            border-radius: 10px;
+            padding: 13px;
+        }
+
+        .location-item span {
+            display: block;
+            color: #64748b;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .location-item strong {
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .button:hover {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
+
+        .button-secondary {
+            background: #243148;
+        }
+
+        .button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* =====================================================
+           TELEGRAM
+        ===================================================== */
+
+        .telegram-status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .telegram-ready {
+            color: #22c55e;
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .test-result {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+
+        /* =====================================================
+           STATISTICS
+        ===================================================== */
+
+        .stats-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4,minmax(0,1fr));
+
+            gap: 12px;
+        }
+
+        .stat {
+            background: #172033;
+            border: 1px solid #263244;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .stat span {
+            display: block;
+            color: #64748b;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .stat strong {
+            font-size: 24px;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .footer {
+            text-align: center;
+            color: #475569;
+            font-size: 11px;
+            padding: 10px 0 30px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media(max-width:1100px) {
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+        @media(max-width:800px) {
+
+            .sidebar {
+                width: 190px;
+            }
+
+            .main {
+                margin-left: 190px;
+            }
+
+            .header {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .location-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .floor2-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .floor-space {
+                display: none;
+            }
+
+        }
+
+        @media(max-width:600px) {
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #263244;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .nav-item {
+                display: inline-block;
+                width: auto;
+            }
+
+            .header {
+                position: relative;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .risk-ring {
+                width: 160px;
+                height: 160px;
+            }
+
+            .risk-ring::before {
+                width: 122px;
+                height: 122px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
+
+<aside class="sidebar">
+
+    <div class="sidebar-logo">
+
+        🔥 Smart <span>Fire</span>
+
+    </div>
+
+
+    <a
+        href="/dashboard"
+        class="nav-item active">
+
+        🏠 Dashboard
+
+    </a>
+
+
+    <a
+        href="/event-history"
+        class="nav-item">
+
+        📜 Event History
+
+    </a>
+
+
+    <a
+        href="/emergency-contact"
+        class="nav-item">
+
+        🚨 Emergency Contacts
+
+    </a>
+
+</aside>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<div class="main">
+
+
+    <!-- =================================================
+         HEADER
+    ================================================= -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <h1>
+                🔥 Smart Fire Detection System
+            </h1>
+
+            <p>
+                IoT Based Fire Detection & Emergency Response Monitoring
+            </p>
+
+        </div>
+
+
+        <div class="header-right">
+
+            <div
+                id="espStatus"
+                class="status-badge status-offline">
+
+                ● ESP32 OFFLINE
+
+            </div>
+
+
+            <div
+                id="lastSeen"
+                class="status-badge">
+
+                Last update: --
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         CONTENT
+    ================================================= -->
+
+    <main class="container">
+
+
+        <!-- =================================================
+             EMERGENCY ALERT
+        ================================================= -->
+
+        <div
+            id="emergencyAlert"
+            class="emergency-alert">
+
+            <div class="emergency-icon">
+                🚨
+            </div>
+
+            <div>
+
+                <div
+                    id="emergencyTitle"
+                    class="emergency-title">
+
+                    EMERGENCY ALERT
+
+                </div>
+
+                <div
+                    id="emergencyMessage"
+                    class="emergency-message">
+
+                    Fire risk detected.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LIVE SENSOR CARDS
+        ================================================= -->
+
+        <section class="sensor-grid">
+
+
+            <!-- TEMPERATURE -->
+
+            <div class="card metric-card">
+
+                <div class="card-label">
+                    🌡 Temperature
+                </div>
+
+                <div class="metric-value">
+
+                    <span id="temperature">
+                        --
+                    </span>
+
+                    <span class="metric-unit">
+                        °C
+                    </span>
+
+                </div>
+
+                <div class="metric-sub">
+                    DHT11 environmental sensor
+                </div>
+
+            </div>
+
+
+            <!-- HUMIDITY -->
+
+            <div class="card metric-card">
+
+                <div class="card-label">
+                    💧 Humidity
+                </div>
+
+                <div class="metric-value">
+
+                    <span id="humidity">
+                        --
+                    </span>
+
+                    <span class="metric-unit">
+                        %
+                    </span>
+
+                </div>
+
+                <div class="metric-sub">
+                    Current relative humidity
+                </div>
+
+            </div>
+
+
+            <!-- GAS -->
+
+            <div class="card metric-card">
+
+                <div class="card-label">
+                    💨 MQ-2 Gas
+                </div>
+
+                <div class="metric-value">
+
+                    <span id="gas">
+                        --
+                    </span>
+
+                    <span class="metric-unit">
+                        ADC
+                    </span>
+
+                </div>
+
+                <div class="metric-sub">
+                    Gas sensor reading
+                </div>
+
+            </div>
+
+
+            <!-- FLAME -->
+
+            <div class="card metric-card">
+
+                <div class="card-label">
+                    🔥 Flame Sensor
+                </div>
+
+                <div
+                    id="flame"
+                    class="metric-value">
+
+                    --
+
+                </div>
+
+                <div class="metric-sub">
+                    Flame detection state
+                </div>
+
+            </div>
+
+
+            <!-- IR -->
+
+            <div class="card metric-card">
+
+                <div class="card-label">
+                    📡 IR Sensor
+                </div>
+
+                <div
+                    id="ir"
+                    class="metric-value">
+
+                    --
+
+                </div>
+
+                <div class="metric-sub">
+                    Object detection state
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             BUILDING SENSOR LAYOUT
+        ================================================= -->
+
+        <section class="card building-card">
+
+            <div class="card-header">
+
+                <h2>
+                    🏢 Building Sensor Layout
+                </h2>
+
+                <span
+                    id="layoutStatus"
+                    class="building-status safe">
+
+                    ✓ SYSTEM NORMAL
+
+                </span>
+
+            </div>
+
+
+            <div class="floor-plan">
+
+
+                <!-- ==============================
+                     FLOOR 1
+                =============================== -->
+
+                <div class="floor">
+
+                    <div class="floor-label">
+                        ⬇ FLOOR 1
+                    </div>
+
+
+                    <div class="room-grid">
+
+
+                        <!-- ROOM 1 -->
+
+                        <div
+                            id="room1"
+                            class="room room-safe">
+
+                            <div class="room-title">
+                                Room 1
+                            </div>
+
+                            <div class="room-sensor">
+                                🔥 Flame Sensor
+                            </div>
+
+                            <div
+                                id="room1Sensor"
+                                class="sensor-chip safe">
+
+                                CLEAR
+
+                            </div>
+
+                            <div
+                                id="room1Status"
+                                class="room-status safe-text">
+
+                                No flame detected
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ROOM 2 -->
+
+                        <div
+                            id="room2"
+                            class="room room-safe">
+
+                            <div class="room-title">
+                                Room 2
+                            </div>
+
+                            <div class="room-sensor">
+                                🌡 DHT11 Environmental Sensor
+                            </div>
+
+                            <div
+                                class="sensor-chip safe">
+
+                                Temperature:
+                                <span id="room2Temp">
+                                    --
+                                </span>
+                                °C
+
+                            </div>
+
+                            <div
+                                class="sensor-chip safe">
+
+                                Humidity:
+                                <span id="room2Humidity">
+                                    --
+                                </span>
+                                %
+
+                            </div>
+
+                            <div
+                                id="room2Status"
+                                class="room-status safe-text">
+
+                                Sensor monitoring normally
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ROOM 3 -->
+
+                        <div
+                            id="room3"
+                            class="room room-safe">
+
+                            <div class="room-title">
+                                Room 3
+                            </div>
+
+                            <div class="room-sensor">
+                                💨 MQ-2 Gas Sensor
+                            </div>
+
+                            <div
+                                id="room3Sensor"
+                                class="sensor-chip safe">
+
+                                ADC --
+
+                            </div>
+
+                            <div
+                                id="room3Status"
+                                class="room-status safe-text">
+
+                                Gas sensor monitoring
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==============================
+                     FLOOR 2
+                =============================== -->
+
+                <div class="floor">
+
+                    <div class="floor-label">
+                        ⬆ FLOOR 2
+                    </div>
+
+
+                    <div class="floor2-grid">
+
+
+                        <div class="floor-space">
+                            LEFT AREA
+                        </div>
+
+
+                        <!-- MIDDLE ROOM -->
+
+                        <div
+                            id="room4"
+                            class="room room-safe">
+
+                            <div class="room-title">
+                                Middle Room
+                            </div>
+
+                            <div class="room-sensor">
+                                📡 IR Sensor + 🔔 Buzzer
+                            </div>
+
+
+                            <div
+                                id="room4IR"
+                                class="sensor-chip safe">
+
+                                IR CLEAR
+
+                            </div>
+
+
+                            <div
+                                id="room4Buzzer"
+                                class="sensor-chip safe">
+
+                                🔔 BUZZER OFF
+
+                            </div>
+
+
+                            <div
+                                id="room4Status"
+                                class="room-status safe-text">
+
+                                Standby - monitoring normally
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="floor-space">
+                            RIGHT AREA
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LEGEND -->
+
+            <div class="layout-legend">
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-dot legend-safe">
+                    </span>
+
+                    Safe / Normal
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-dot legend-warning">
+                    </span>
+
+                    Warning
+
+                </div>
+
+
+                <div class="legend-item">
+
+                    <span
+                        class="legend-dot legend-alert">
+                    </span>
+
+                    Sensor Alert
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             RISK + RESPONSE
+        ================================================= -->
+
+        <section class="two-column">
+
+
+            <!-- FIRE RISK -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🚨 Fire Risk Assessment
+                    </h2>
+
+                    <span>
+                        Real-time
+                    </span>
+
+                </div>
+
+
+                <div class="risk-content">
+
+
+                    <div
+                        id="riskRing"
+                        class="risk-ring">
+
+                        <div class="risk-center">
+
+                            <div
+                                id="score"
+                                class="risk-number">
+
+                                0
+
+                            </div>
+
+                            <div class="risk-small">
+                                / 100
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="risk-info">
+
+                        <div
+                            id="risk"
+                            class="risk-level low">
+
+                            LOW
+
+                        </div>
+
+
+                        <p
+                            id="riskDescription"
+                            class="risk-description">
+
+                            System is operating under normal monitoring conditions.
+
+                        </p>
+
+
+                        <div class="risk-meta">
+
+
+                            <div class="mini-box">
+
+                                <span>
+                                    Risk Score
+                                </span>
+
+                                <strong id="riskScoreMini">
+                                    0 / 100
+                                </strong>
+
+                            </div>
+
+
+                            <div class="mini-box">
+
+                                <span>
+                                    Last Reading
+                                </span>
+
+                                <strong id="sensorTimestamp">
+                                    --
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- EMERGENCY RESPONSE -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🛡 Emergency Response
+                    </h2>
+
+                    <span>
+                        Current action
+                    </span>
+
+                </div>
+
+
+                <div class="action-box">
+
+                    <div class="action-status">
+                        Recommended Action
+                    </div>
+
+
+                    <div
+                        id="action"
+                        class="action-text">
+
+                        CONTINUE MONITORING
+
+                    </div>
+
+
+                    <p
+                        id="message"
+                        class="message">
+
+                        System is monitoring the environment.
+
+                    </p>
+
+                </div>
+
+
+                <div style="margin-top:18px">
+
+                    <div class="card-label">
+                        Fire Detection State
+                    </div>
+
+
+                    <div
+                        id="fireState"
+                        class="fire-state">
+
+                        ✅ NORMAL MONITORING
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             LIVE CHARTS
+        ================================================= -->
+
+        <section class="charts-grid">
+
+
+            <!-- TEMPERATURE -->
+
+            <div class="card chart-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🌡 Temperature Trend
+                    </h2>
+
+                    <span>
+                        Recent events
+                    </span>
+
+                </div>
+
+
+                <svg
+                    id="temperatureChart"
+                    class="chart"
+                    viewBox="0 0 500 130"
+                    preserveAspectRatio="none">
+                </svg>
+
+
+                <div class="chart-value">
+
+                    Current:
+
+                    <span id="chartTempValue">
+                        --
+                    </span>
+
+                    °C
+
+                </div>
+
+            </div>
+
+
+            <!-- GAS -->
+
+            <div class="card chart-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        💨 Gas Trend
+                    </h2>
+
+                    <span>
+                        Recent events
+                    </span>
+
+                </div>
+
+
+                <svg
+                    id="gasChart"
+                    class="chart"
+                    viewBox="0 0 500 130"
+                    preserveAspectRatio="none">
+                </svg>
+
+
+                <div class="chart-value">
+
+                    Current:
+
+                    <span id="chartGasValue">
+                        --
+                    </span>
+
+                    ADC
+
+                </div>
+
+            </div>
+
+
+            <!-- RISK -->
+
+            <div class="card chart-card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🚨 Risk Trend
+                    </h2>
+
+                    <span>
+                        Recent events
+                    </span>
+
+                </div>
+
+
+                <svg
+                    id="riskChart"
+                    class="chart"
+                    viewBox="0 0 500 130"
+                    preserveAspectRatio="none">
+                </svg>
+
+
+                <div class="chart-value">
+
+                    Current:
+
+                    <span id="chartRiskValue">
+                        --
+                    </span>
+
+                    / 100
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SENSOR HEALTH + LOCATION
+        ================================================= -->
+
+        <section class="two-column">
+
+
+            <!-- SENSOR HEALTH -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        🩺 Sensor Health
+                    </h2>
+
+                    <span>
+                        System monitoring
+                    </span>
+
+                </div>
+
+
+                <div class="health-list">
+
+
+                    <div class="health-row">
+
+                        <span class="health-name">
+                            DHT11
+                        </span>
+
+                        <span
+                            id="dhtHealth"
+                            class="health-status health-ok">
+
+                            ● OK
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="health-row">
+
+                        <span class="health-name">
+                            MQ-2 Gas Sensor
+                        </span>
+
+                        <span
+                            id="gasHealth"
+                            class="health-status health-ok">
+
+                            ● OK
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="health-row">
+
+                        <span class="health-name">
+                            Flame Sensor
+                        </span>
+
+                        <span
+                            id="flameHealth"
+                            class="health-status health-ok">
+
+                            ● OK
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="health-row">
+
+                        <span class="health-name">
+                            IR Sensor
+                        </span>
+
+                        <span
+                            id="irHealth"
+                            class="health-status health-ok">
+
+                            ● OK
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="health-row">
+
+                        <span class="health-name">
+                            ESP32
+                        </span>
+
+                        <span
+                            id="espHealth"
+                            class="health-status health-ok">
+
+                            ● ONLINE
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOCATION -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        📍 Emergency Location
+                    </h2>
+
+                    <span>
+                        Registered
+                    </span>
+
+                </div>
+
+
+                <div class="location-grid">
+
+
+                    <div class="location-item">
+
+                        <span>
+                            Building
+                        </span>
+
+                        <strong id="locationBuilding">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="location-item">
+
+                        <span>
+                            Location
+                        </span>
+
+                        <strong id="locationName">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="location-item">
+
+                        <span>
+                            Responsible Person
+                        </span>
+
+                        <strong id="responsiblePerson">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+                    <div class="location-item">
+
+                        <span>
+                            GPS Status
+                        </span>
+
+                        <strong>
+                            GPS MODULE POSTPONED
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="button-row">
+
+                    <button
+                        class="button"
+                        onclick="openGoogleMaps()">
+
+                        🗺 Open Google Maps
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             TELEGRAM + EVENT STATISTICS
+        ================================================= -->
+
+        <section class="two-column">
+
+
+            <!-- TELEGRAM -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        📱 Telegram Alerts
+                    </h2>
+
+                    <span>
+                        Emergency notification
+                    </span>
+
+                </div>
+
+
+                <div class="telegram-status-row">
+
+                    <div
+                        id="telegramStatus"
+                        class="telegram-ready">
+
+                        ● TELEGRAM SYSTEM READY
+
+                    </div>
+
+
+                    <button
+                        id="telegramTestButton"
+                        class="button button-secondary"
+                        onclick="sendTelegramTest()">
+
+                        Send Test Alert
+
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="telegramResult"
+                    class="test-result">
+
+                    HIGH and CRITICAL events trigger emergency Telegram notifications.
+
+                </div>
+
+            </div>
+
+
+            <!-- STATISTICS -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        📊 Event Statistics
+                    </h2>
+
+                    <span>
+                        Last 50 events
+                    </span>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+
+                    <div class="stat">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="totalEvents">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <span>
+                            Medium+
+                        </span>
+
+                        <strong id="mediumEvents">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <span>
+                            High
+                        </span>
+
+                        <strong id="highEvents">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="stat">
+
+                        <span>
+                            Critical
+                        </span>
+
+                        <strong
+                            id="criticalEvents"
+                            style="color:#ef4444">
+
+                            0
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FOOTER
+        ================================================= -->
+
+        <div class="footer">
+
+            Smart Fire Detection and Emergency Response System
+
+            • IoT
+            • ESP32
+            • FastAPI
+            • SQLite
+            • Telegram
+
+        </div>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+
+// ============================================================
+// GLOBAL
+// ============================================================
+
+let emergencyMapsUrl = "";
+
+
+// ============================================================
+// RISK COLOR
+// ============================================================
+
+function getRiskColor(level) {
+
+    if (level === "CRITICAL") {
+        return "#ef4444";
+    }
+
+    if (level === "HIGH") {
+        return "#fb923c";
+    }
+
+    if (level === "MEDIUM") {
+        return "#facc15";
+    }
+
+    return "#22c55e";
+}
+
+
+// ============================================================
+// BUILDING ROOM STATE
+// ============================================================
+
+function setRoomState(
+    roomId,
+    isAlert,
+    isWarning = false
+) {
+
+    const room =
+        document.getElementById(roomId);
+
+    if (!room) {
+        return;
+    }
+
+    room.classList.remove(
+        "room-safe",
+        "room-alert",
+        "room-warning"
+    );
+
+    if (isAlert) {
+
+        room.classList.add(
+            "room-alert"
+        );
+
+    }
+
+    else if (isWarning) {
+
+        room.classList.add(
+            "room-warning"
+        );
+
+    }
+
+    else {
+
+        room.classList.add(
+            "room-safe"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// SENSOR CHIP STATE
+// ============================================================
+
+function setChipState(
+    id,
+    isAlert,
+    text,
+    warning = false
+) {
+
+    const chip =
+        document.getElementById(id);
+
+    if (!chip) {
+        return;
+    }
+
+    chip.innerText = text;
+
+    chip.classList.remove(
+        "safe",
+        "alert",
+        "warning"
+    );
+
+    if (isAlert) {
+
+        chip.classList.add(
+            "alert"
+        );
+
+    }
+
+    else if (warning) {
+
+        chip.classList.add(
+            "warning"
+        );
+
+    }
+
+    else {
+
+        chip.classList.add(
+            "safe"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// UPDATE BUILDING SENSOR LAYOUT
+// ============================================================
+
+function updateBuildingLayout(data) {
+
+    const flameDetected =
+        Number(data.flame) === 1;
+
+    const irDetected =
+        Number(data.ir) === 1;
+
+    const temperature =
+        Number(data.temperature);
+
+    const humidity =
+        Number(data.humidity);
+
+    const gas =
+        Number(data.gas);
+
+    const riskLevel =
+        String(
+            data.risk_level || "LOW"
+        ).toUpperCase();
+
+
+    // --------------------------------------------------------
+    // OVERALL BUILDING STATUS
+    // --------------------------------------------------------
+
+    const layoutStatus =
+        document.getElementById(
+            "layoutStatus"
+        );
+
+    layoutStatus.classList.remove(
+        "safe",
+        "warning",
+        "alert"
+    );
+
+
+    if (riskLevel === "CRITICAL") {
+
+        layoutStatus.innerText =
+            "🚨 CRITICAL FIRE RISK";
+
+        layoutStatus.classList.add(
+            "alert"
+        );
+
+    }
+
+    else if (riskLevel === "HIGH") {
+
+        layoutStatus.innerText =
+            "⚠ HIGH FIRE RISK";
+
+        layoutStatus.classList.add(
+            "alert"
+        );
+
+    }
+
+    else if (riskLevel === "MEDIUM") {
+
+        layoutStatus.innerText =
+            "⚠ WARNING CONDITION";
+
+        layoutStatus.classList.add(
+            "warning"
+        );
+
+    }
+
+    else {
+
+        layoutStatus.innerText =
+            "✓ SYSTEM NORMAL";
+
+        layoutStatus.classList.add(
+            "safe"
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // ROOM 1 - FLAME
+    // --------------------------------------------------------
+
+    setRoomState(
+        "room1",
+        flameDetected
+    );
+
+
+    setChipState(
+        "room1Sensor",
+        flameDetected,
+        flameDetected
+            ? "🔥 FLAME DETECTED"
+            : "✓ CLEAR"
+    );
+
+
+    const room1Status =
+        document.getElementById(
+            "room1Status"
+        );
+
+
+    if (flameDetected) {
+
+        room1Status.innerText =
+            "⚠ Flame detected in Room 1";
+
+        room1Status.className =
+            "room-status alert-text";
+
+    }
+
+    else {
+
+        room1Status.innerText =
+            "✓ No flame detected";
+
+        room1Status.className =
+            "room-status safe-text";
+
+    }
+
+
+    // --------------------------------------------------------
+    // ROOM 2 - DHT11
+    // --------------------------------------------------------
+
+    document.getElementById(
+        "room2Temp"
+    ).innerText =
+        Number.isFinite(temperature)
+            ? temperature.toFixed(1)
+            : "--";
+
+
+    document.getElementById(
+        "room2Humidity"
+    ).innerText =
+        Number.isFinite(humidity)
+            ? humidity.toFixed(1)
+            : "--";
+
+
+    const room2Warning =
+        riskLevel === "MEDIUM";
+
+
+    const room2Alert =
+        riskLevel === "HIGH" ||
+        riskLevel === "CRITICAL";
+
+
+    setRoomState(
+        "room2",
+        room2Alert,
+        room2Warning
+    );
+
+
+    const room2Status =
+        document.getElementById(
+            "room2Status"
+        );
+
+
+    if (room2Alert) {
+
+        room2Status.innerText =
+            "⚠ High overall fire risk - inspect Room 2";
+
+        room2Status.className =
+            "room-status alert-text";
+
+    }
+
+    else if (room2Warning) {
+
+        room2Status.innerText =
+            "⚠ Warning - environmental conditions require monitoring";
+
+        room2Status.className =
+            "room-status";
+
+    }
+
+    else {
+
+        room2Status.innerText =
+            "✓ DHT11 sensor monitoring normally";
+
+        room2Status.className =
+            "room-status safe-text";
+
+    }
+
+
+    // --------------------------------------------------------
+    // ROOM 3 - MQ-2
+    // --------------------------------------------------------
+
+    document.getElementById(
+        "room3Sensor"
+    ).innerText =
+        "ADC " +
+        (
+            Number.isFinite(gas)
+                ? gas
+                : "--"
+        );
+
+
+    setRoomState(
+        "room3",
+        room2Alert,
+        room2Warning
+    );
+
+
+    const room3Status =
+        document.getElementById(
+            "room3Status"
+        );
+
+
+    if (room2Alert) {
+
+        room3Status.innerText =
+            "⚠ High risk - inspect gas/fire conditions";
+
+        room3Status.className =
+            "room-status alert-text";
+
+        setChipState(
+            "room3Sensor",
+            true,
+            "⚠ ADC " +
+            (
+                Number.isFinite(gas)
+                    ? gas
+                    : "--"
+            )
+        );
+
+    }
+
+    else if (room2Warning) {
+
+        room3Status.innerText =
+            "⚠ Warning condition - continue monitoring";
+
+        room3Status.className =
+            "room-status";
+
+        setChipState(
+            "room3Sensor",
+            false,
+            "⚠ ADC " +
+            (
+                Number.isFinite(gas)
+                    ? gas
+                    : "--"
+            ),
+            true
+        );
+
+    }
+
+    else {
+
+        room3Status.innerText =
+            "✓ Gas sensor monitoring normally";
+
+        room3Status.className =
+            "room-status safe-text";
+
+        setChipState(
+            "room3Sensor",
+            false,
+            "✓ ADC " +
+            (
+                Number.isFinite(gas)
+                    ? gas
+                    : "--"
+            )
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // FLOOR 2 MIDDLE ROOM - IR + BUZZER
+    // --------------------------------------------------------
+
+    const buzzerOn =
+        riskLevel === "HIGH" ||
+        riskLevel === "CRITICAL";
+
+
+    const room4Alert =
+        irDetected ||
+        buzzerOn;
+
+
+    setRoomState(
+        "room4",
+        room4Alert,
+        riskLevel === "MEDIUM"
+    );
+
+
+    // IR
+
+    setChipState(
+        "room4IR",
+        irDetected,
+        irDetected
+            ? "⚠ IR DETECTED"
+            : "✓ IR CLEAR"
+    );
+
+
+    // BUZZER
+
+    setChipState(
+        "room4Buzzer",
+        buzzerOn,
+        buzzerOn
+            ? "🔔 BUZZER ON"
+            : "🔔 BUZZER OFF"
+    );
+
+
+    const room4Status =
+        document.getElementById(
+            "room4Status"
+        );
+
+
+    if (irDetected) {
+
+        room4Status.innerText =
+            "⚠ Object/motion detected by IR sensor";
+
+        room4Status.className =
+            "room-status alert-text";
+
+    }
+
+    else if (buzzerOn) {
+
+        room4Status.innerText =
+            "🚨 Emergency buzzer active due to high fire risk";
+
+        room4Status.className =
+            "room-status alert-text";
+
+    }
+
+    else if (riskLevel === "MEDIUM") {
+
+        room4Status.innerText =
+            "⚠ Warning condition - monitoring";
+
+        room4Status.className =
+            "room-status";
+
+    }
+
+    else {
+
+        room4Status.innerText =
+            "✓ Standby - monitoring normally";
+
+        room4Status.className =
+            "room-status safe-text";
+
+    }
+
+}
+
+
+// ============================================================
+// LOAD LATEST SENSOR DATA
+// ============================================================
+
+async function loadLatest() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/latest"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "LATEST:",
+            result
+        );
+
+
+        if (
+            result.status !==
+            "success"
+        ) {
+
+            return;
+
+        }
+
+
+        const data =
+            result.data;
+
+
+        // ----------------------------------------------------
+        // TEMPERATURE
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "temperature"
+        ).innerText =
+            Number(
+                data.temperature
+            ).toFixed(1);
+
+
+        // ----------------------------------------------------
+        // HUMIDITY
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "humidity"
+        ).innerText =
+            Number(
+                data.humidity
+            ).toFixed(1);
+
+
+        // ----------------------------------------------------
+        // GAS
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "gas"
+        ).innerText =
+            data.gas;
+
+
+        // ----------------------------------------------------
+        // FLAME
+        // ----------------------------------------------------
+
+        const flame =
+            document.getElementById(
+                "flame"
+            );
+
+
+        if (
+            Number(data.flame) === 1
+        ) {
+
+            flame.innerText =
+                "DETECTED";
+
+            flame.style.color =
+                "#ef4444";
+
+        }
+
+        else {
+
+            flame.innerText =
+                "CLEAR";
+
+            flame.style.color =
+                "#22c55e";
+
+        }
+
+
+        // ----------------------------------------------------
+        // IR
+        // ----------------------------------------------------
+
+        const ir =
+            document.getElementById(
+                "ir"
+            );
+
+
+        if (
+            Number(data.ir) === 1
+        ) {
+
+            ir.innerText =
+                "DETECTED";
+
+            ir.style.color =
+                "#fb923c";
+
+        }
+
+        else {
+
+            ir.innerText =
+                "CLEAR";
+
+            ir.style.color =
+                "#22c55e";
+
+        }
+
+
+        // ----------------------------------------------------
+        // UPDATE BUILDING LAYOUT
+        // ----------------------------------------------------
+
+        updateBuildingLayout(
+            data
+        );
+
+
+        // ----------------------------------------------------
+        // RISK SCORE
+        // ----------------------------------------------------
+
+        const score =
+            Number(
+                data.risk_score
+            );
+
+
+        const level =
+            String(
+                data.risk_level || "LOW"
+            ).toUpperCase();
+
+
+        document.getElementById(
+            "score"
+        ).innerText =
+            score;
+
+
+        document.getElementById(
+            "riskScoreMini"
+        ).innerText =
+            score +
+            " / 100";
+
+
+        // ----------------------------------------------------
+        // RISK LEVEL
+        // ----------------------------------------------------
+
+        const risk =
+            document.getElementById(
+                "risk"
+            );
+
+
+        risk.innerText =
+            level;
+
+
+        risk.className =
+            "risk-level " +
+            level.toLowerCase();
+
+
+        // ----------------------------------------------------
+        // RISK RING
+        // ----------------------------------------------------
+
+        const ring =
+            document.getElementById(
+                "riskRing"
+            );
+
+
+        const degrees =
+            Math.max(
+                0,
+                Math.min(
+                    360,
+                    score * 3.6
+                )
+            );
+
+
+        const riskColor =
+            getRiskColor(
+                level
+            );
+
+
+        ring.style.background =
+            `conic-gradient(
+                ${riskColor} 0deg,
+                ${riskColor} ${degrees}deg,
+                #1e293b ${degrees}deg
+            )`;
+
+
+        // ----------------------------------------------------
+        // DESCRIPTION
+        // ----------------------------------------------------
+
+        let description =
+            "System is operating under normal monitoring conditions.";
+
+
+        if (
+            level === "MEDIUM"
+        ) {
+
+            description =
+                "Warning condition detected. Inspect the monitored area and continue monitoring.";
+
+        }
+
+
+        else if (
+            level === "HIGH"
+        ) {
+
+            description =
+                "High fire risk detected. Evacuate the nearby area and contact the responsible person.";
+
+        }
+
+
+        else if (
+            level === "CRITICAL"
+        ) {
+
+            description =
+                "Critical fire condition detected. Immediate emergency response is required.";
+
+        }
+
+
+        document.getElementById(
+            "riskDescription"
+        ).innerText =
+            description;
+
+
+        // ----------------------------------------------------
+        // ACTION
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "action"
+        ).innerText =
+            data.emergency_action ||
+            "CONTINUE MONITORING";
+
+
+        // ----------------------------------------------------
+        // TIMESTAMP
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "sensorTimestamp"
+        ).innerText =
+            data.timestamp || "--";
+
+
+        // ----------------------------------------------------
+        // MESSAGE
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "message"
+        ).innerText =
+            description;
+
+
+        // ----------------------------------------------------
+        // FIRE STATE
+        // ----------------------------------------------------
+
+        const fireState =
+            document.getElementById(
+                "fireState"
+            );
+
+
+        if (
+            level === "CRITICAL"
+        ) {
+
+            fireState.innerText =
+                "🚨 CRITICAL FIRE CONDITION";
+
+            fireState.style.color =
+                "#ef4444";
+
+        }
+
+        else if (
+            level === "HIGH"
+        ) {
+
+            fireState.innerText =
+                "⚠️ HIGH FIRE RISK";
+
+            fireState.style.color =
+                "#fb923c";
+
+        }
+
+        else if (
+            level === "MEDIUM"
+        ) {
+
+            fireState.innerText =
+                "⚠️ WARNING CONDITION";
+
+            fireState.style.color =
+                "#facc15";
+
+        }
+
+        else {
+
+            fireState.innerText =
+                "✅ NORMAL MONITORING";
+
+            fireState.style.color =
+                "#22c55e";
+
+        }
+
+
+        // ----------------------------------------------------
+        // EMERGENCY ALERT
+        // ----------------------------------------------------
+
+        const alert =
+            document.getElementById(
+                "emergencyAlert"
+            );
+
+
+        if (
+            level === "CRITICAL"
+        ) {
+
+            alert.style.display =
+                "flex";
+
+
+            document.getElementById(
+                "emergencyTitle"
+            ).innerText =
+                "🚨 CRITICAL FIRE ALERT";
+
+
+            document.getElementById(
+                "emergencyMessage"
+            ).innerText =
+                "Risk Score " +
+                score +
+                "/100 — Immediate Emergency Response Required";
+
+        }
+
+        else if (
+            level === "HIGH"
+        ) {
+
+            alert.style.display =
+                "flex";
+
+
+            document.getElementById(
+                "emergencyTitle"
+            ).innerText =
+                "⚠️ HIGH FIRE RISK ALERT";
+
+
+            document.getElementById(
+                "emergencyMessage"
+            ).innerText =
+                "Risk Score " +
+                score +
+                "/100 — Evacuate Nearby Area and Contact Responsible Person";
+
+        }
+
+        else {
+
+            alert.style.display =
+                "none";
+
+        }
+
+
+        // ----------------------------------------------------
+        // CHART CURRENT VALUES
+        // ----------------------------------------------------
+
+        document.getElementById(
+            "chartTempValue"
+        ).innerText =
+            Number(
+                data.temperature
+            ).toFixed(1);
+
+
+        document.getElementById(
+            "chartGasValue"
+        ).innerText =
+            data.gas;
+
+
+        document.getElementById(
+            "chartRiskValue"
+        ).innerText =
+            score;
+
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Latest data error:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// ESP32 STATUS
+// ============================================================
+
+async function checkESP32Status() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/esp32-status"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        const badge =
+            document.getElementById(
+                "espStatus"
+            );
+
+
+        const health =
+            document.getElementById(
+                "espHealth"
+            );
+
+
+        const lastSeen =
+            document.getElementById(
+                "lastSeen"
+            );
+
+
+        if (
+            result.status ===
+            "online"
+        ) {
+
+            badge.innerText =
+                "● ESP32 ONLINE";
+
+
+            badge.className =
+                "status-badge status-online";
+
+
+            health.innerText =
+                "● ONLINE";
+
+
+            health.className =
+                "health-status health-ok";
+
+        }
+
+        else {
+
+            badge.innerText =
+                "● ESP32 OFFLINE";
+
+
+            badge.className =
+                "status-badge status-offline";
+
+
+            health.innerText =
+                "● OFFLINE";
+
+
+            health.className =
+                "health-status health-fault";
+
+        }
+
+
+        if (
+            result.last_update
+        ) {
+
+            lastSeen.innerText =
+                "Last update: " +
+                result.last_update;
+
+        }
+
+        else {
+
+            lastSeen.innerText =
+                "Last update: --";
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "ESP32 status error:",
+            error
+        );
+
+        setOffline();
+
+    }
+
+}
+
+
+// ============================================================
+// OFFLINE
+// ============================================================
+
+function setOffline() {
+
+    const badge =
+        document.getElementById(
+            "espStatus"
+        );
+
+
+    badge.innerText =
+        "● ESP32 OFFLINE";
+
+
+    badge.className =
+        "status-badge status-offline";
+
+
+    const health =
+        document.getElementById(
+            "espHealth"
+        );
+
+
+    health.innerText =
+        "● OFFLINE";
+
+
+    health.className =
+        "health-status health-fault";
+
+}
+
+
+// ============================================================
+// LOAD EVENT STATISTICS + CHART DATA
+// ============================================================
+
+async function loadEvents() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/events"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        const events =
+            result.events || [];
+
+
+        // ----------------------------------------------------
+        // Statistics
+        // ----------------------------------------------------
+
+        const total =
+            events.length;
+
+
+        const mediumPlus =
+            events.filter(
+                event =>
+                    Number(
+                        event.risk_score
+                    ) >= 30
+            ).length;
+
+
+        const high =
+            events.filter(
+                event =>
+                    event.risk_level ===
+                    "HIGH"
+            ).length;
+
+
+        const critical =
+            events.filter(
+                event =>
+                    event.risk_level ===
+                    "CRITICAL"
+            ).length;
+
+
+        document.getElementById(
+            "totalEvents"
+        ).innerText =
+            total;
+
+
+        document.getElementById(
+            "mediumEvents"
+        ).innerText =
+            mediumPlus;
+
+
+        document.getElementById(
+            "highEvents"
+        ).innerText =
+            high;
+
+
+        document.getElementById(
+            "criticalEvents"
+        ).innerText =
+            critical;
+
+
+        // ----------------------------------------------------
+        // Chart Data
+        // ----------------------------------------------------
+
+        const recent =
+            events
+                .slice(0, 12)
+                .reverse();
+
+
+        drawChart(
+            "temperatureChart",
+            recent.map(
+                e =>
+                    Number(
+                        e.temperature
+                    )
+            ),
+            "#60a5fa"
+        );
+
+
+        drawChart(
+            "gasChart",
+            recent.map(
+                e =>
+                    Number(
+                        e.gas
+                    )
+            ),
+            "#34d399"
+        );
+
+
+        drawChart(
+            "riskChart",
+            recent.map(
+                e =>
+                    Number(
+                        e.risk_score
+                    )
+            ),
+            "#ef4444"
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Events error:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// DRAW CHART
+// ============================================================
+
+function drawChart(
+    id,
+    values,
+    color
+) {
+
+    const svg =
+        document.getElementById(
+            id
+        );
+
+
+    svg.innerHTML =
+        "";
+
+
+    if (
+        !values.length
+    ) {
+
+        const empty =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+
+        empty.setAttribute(
+            "x",
+            "20"
+        );
+
+
+        empty.setAttribute(
+            "y",
+            "60"
+        );
+
+
+        empty.setAttribute(
+            "fill",
+            "#64748b"
+        );
+
+
+        empty.textContent =
+            "No chart data";
+
+
+        svg.appendChild(
+            empty
+        );
+
+
+        return;
+
+    }
+
+
+    const width =
+        500;
+
+
+    const height =
+        130;
+
+
+    const padding =
+        12;
+
+
+    const min =
+        Math.min(
+            ...values
+        );
+
+
+    const max =
+        Math.max(
+            ...values
+        );
+
+
+    const range =
+        max - min || 1;
+
+
+    const points =
+        values.map(
+            (value, index) => {
+
+                const x =
+                    padding +
+                    (
+                        index /
+                        Math.max(
+                            values.length - 1,
+                            1
+                        )
+                    ) *
+                    (
+                        width -
+                        padding * 2
+                    );
+
+
+                const y =
+                    height -
+                    padding -
+                    (
+                        (
+                            value - min
+                        ) /
+                        range
+                    ) *
+                    (
+                        height -
+                        padding * 2
+                    );
+
+
+                return {
+                    x,
+                    y
+                };
+
+            }
+        );
+
+
+    // --------------------------------------------------------
+    // GRID LINE
+    // --------------------------------------------------------
+
+    const grid =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "line"
+        );
+
+
+    grid.setAttribute(
+        "x1",
+        "0"
+    );
+
+
+    grid.setAttribute(
+        "y1",
+        "105"
+    );
+
+
+    grid.setAttribute(
+        "x2",
+        "500"
+    );
+
+
+    grid.setAttribute(
+        "y2",
+        "105"
+    );
+
+
+    grid.setAttribute(
+        "stroke",
+        "#1e293b"
+    );
+
+
+    grid.setAttribute(
+        "stroke-width",
+        "1"
+    );
+
+
+    svg.appendChild(
+        grid
+    );
+
+
+    // --------------------------------------------------------
+    // AREA
+    // --------------------------------------------------------
+
+    const area =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "polygon"
+        );
+
+
+    const areaPoints =
+        [
+            "12,118",
+
+            ...points.map(
+                p =>
+                    `${p.x},${p.y}`
+            ),
+
+            "488,118"
+
+        ].join(" ");
+
+
+    area.setAttribute(
+        "points",
+        areaPoints
+    );
+
+
+    area.setAttribute(
+        "fill",
+        color
+    );
+
+
+    area.setAttribute(
+        "opacity",
+        ".08"
+    );
+
+
+    svg.appendChild(
+        area
+    );
+
+
+    // --------------------------------------------------------
+    // LINE
+    // --------------------------------------------------------
+
+    const line =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "polyline"
+        );
+
+
+    line.setAttribute(
+        "points",
+        points
+            .map(
+                p =>
+                    `${p.x},${p.y}`
+            )
+            .join(" ")
+    );
+
+
+    line.setAttribute(
+        "stroke",
+        color
+    );
+
+
+    line.setAttribute(
+        "class",
+        "chart-line"
+    );
+
+
+    svg.appendChild(
+        line
+    );
+
+
+    // --------------------------------------------------------
+    // LAST POINT
+    // --------------------------------------------------------
+
+    const last =
+        points[
+            points.length - 1
+        ];
+
+
+    const circle =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "circle"
+        );
+
+
+    circle.setAttribute(
+        "cx",
+        last.x
+    );
+
+
+    circle.setAttribute(
+        "cy",
+        last.y
+    );
+
+
+    circle.setAttribute(
+        "r",
+        "4"
+    );
+
+
+    circle.setAttribute(
+        "fill",
+        color
+    );
+
+
+    svg.appendChild(
+        circle
+    );
+
+}
+
+
+// ============================================================
+// LOCATION
+// ============================================================
+
+async function loadLocation() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/location"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.status ===
+            "success"
+        ) {
+
+            document.getElementById(
+                "locationBuilding"
+            ).innerText =
+                result.location.building;
+
+
+            document.getElementById(
+                "locationName"
+            ).innerText =
+                result.location.location;
+
+
+            document.getElementById(
+                "responsiblePerson"
+            ).innerText =
+                result.location.responsible_person;
+
+
+            emergencyMapsUrl =
+                result.location.maps_url;
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Location error:",
+            error
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// GOOGLE MAPS
+// ============================================================
+
+function openGoogleMaps() {
+
+    if (
+        emergencyMapsUrl
+    ) {
+
+        window.open(
+            emergencyMapsUrl,
+            "_blank"
+        );
+
+    }
+
+    else {
+
+        alert(
+            "Google Maps location is not available."
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// TELEGRAM TEST
+// ============================================================
+
+async function sendTelegramTest() {
+
+    const button =
+        document.getElementById(
+            "telegramTestButton"
+        );
+
+
+    const resultBox =
+        document.getElementById(
+            "telegramResult"
+        );
+
+
+    button.disabled =
+        true;
+
+
+    button.innerText =
+        "Sending...";
+
+
+    resultBox.innerText =
+        "Sending Telegram test message...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/telegram-test"
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (
+            result.status ===
+            "success"
+        ) {
+
+            resultBox.innerText =
+                "✅ Telegram test message sent successfully.";
+
+
+            resultBox.style.color =
+                "#22c55e";
+
+        }
+
+        else {
+
+            resultBox.innerText =
+                "❌ Telegram test failed.";
+
+
+            resultBox.style.color =
+                "#ef4444";
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Telegram error:",
+            error
+        );
+
+
+        resultBox.innerText =
+            "❌ Telegram connection error.";
+
+
+        resultBox.style.color =
+            "#ef4444";
+
+    }
+
+
+    button.disabled =
+        false;
+
+
+    button.innerText =
+        "Send Test Alert";
+
+}
+
+
+// ============================================================
+// INITIAL LOAD
+// ============================================================
+
+loadLatest();
+
+checkESP32Status();
+
+loadEvents();
+
+loadLocation();
+
+
+// ============================================================
+// AUTO REFRESH
+// ============================================================
+
+setInterval(
+    loadLatest,
+    3000
+);
+
+
+setInterval(
+    checkESP32Status,
+    3000
+);
+
+
+setInterval(
+    loadEvents,
+    5000
+);
+
+
+setInterval(
+    loadLocation,
+    10000
+);
+
+
+</script>
+
+
+</body>
+
+</html>
